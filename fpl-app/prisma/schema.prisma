@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id                String          @id @default(cuid())
+  email             String          @unique
+  name              String?
+  fplTeamId         Int?            @unique
+  fplTeamName       String?
+  subscription      String          @default("FREE")
+  subscriptionEnds  DateTime?
+  aiCallsThisMonth  Int             @default(0)
+  createdAt         DateTime        @default(now())
+  
+  teamHistory       TeamHistory[]
+  recommendations   Recommendation[]
+  spyReports        SpyReport[]     @relation("SpyReports")
+  spyTargets        SpyReport[]     @relation("SpyTargets")
+  attacks           Territory[]     @relation("Attacks")
+  defenses          Territory[]     @relation("Defenses")
+}
+
+model TeamHistory {
+  id            String   @id @default(cuid())
+  userId        String
+  gameweek      Int
+  totalPoints   Int
+  rank          Int?
+  overallRank   Int?
+  teamValue     Float
+  captain       String
+  chipUsed      String?
+  
+  user          User     @relation(fields: [userId], references: [id])
+  
+  @@unique([userId, gameweek])
+}
+
+model Recommendation {
+  id            String   @id @default(cuid())
+  userId        String
+  type          String
+  gameweek      Int
+  data          String
+  reasoning     String
+  confidence    Float
+  createdAt     DateTime @default(now())
+  
+  user          User     @relation(fields: [userId], references: [id])
+}
+
+model SpyReport {
+  id            String   @id @default(cuid())
+  spyId         String
+  targetId      String
+  type          String
+  intel         String
+  cost          Int
+  createdAt     DateTime @default(now())
+  
+  spy           User     @relation("SpyReports", fields: [spyId], references: [id])
+  target        User     @relation("SpyTargets", fields: [targetId], references: [id])
+}
+
+model Territory {
+  id            String   @id @default(cuid())
+  attackerId    String
+  defenderId    String
+  status        String
+  attackerPts   Int?
+  defenderPts   Int?
+  margin        Int?
+  debtCarried   Int      @default(0)
+  gameweek      Int
+  
+  attacker      User     @relation("Attacks", fields: [attackerId], references: [id])
+  defender      User     @relation("Defenses", fields: [defenderId], references: [id])
+}

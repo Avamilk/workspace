@@ -1,0 +1,13 @@
+{
+  "ids": ["mem_001", "mem_002", "mem_003"],
+  "documents": [
+    "Initialized personal knowledge base with brain directory containing ideas learnings todos and context markdown files",
+    "Notion SDK is server-side only in Next.js. SDK imports fail in browser. Solution is to create API routes that use SDK server-side. Client fetches from API routes. Pattern is Client to API Route to Notion SDK to Notion API.",
+    "Gotchi Memory Protocol v2.0 uses dual-layer knowledge base. Layer 1 is File Brain with human-readable markdown. Layer 2 is Vector Brain with AI-searchable ChromaDB."
+  ],
+  "metadatas": [
+    {"type": "setup", "date": "2026-02-03", "project": "memory"},
+    {"type": "learning", "date": "2026-02-03", "project": "notion"},
+    {"type": "learning", "date": "2026-02-03", "project": "memory"}
+  ]
+}

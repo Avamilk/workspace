@@ -1,0 +1,99 @@
+{
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "moonshot": {
+        "baseUrl": "https://api.moonshot.ai/v1",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "kimi-k2-0905-preview",
+            "name": "Kimi K2 0905 Preview",
+            "reasoning": false,
+            "input": ["text"],
+            "cost": {
+              "input": 0.0005,
+              "output": 0.0005,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 256000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "kimi-k2.5-instant",
+            "name": "Kimi K2.5 Instant",
+            "reasoning": false,
+            "input": ["text"],
+            "cost": {
+              "input": 0.0005,
+              "output": 0.0005,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 256000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "kimi-k2.5",
+            "name": "Kimi K2.5",
+            "reasoning": false,
+            "input": ["text"],
+            "cost": {
+              "input": 0.0008,
+              "output": 0.0008,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 256000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "kimi-k2.5-thinking",
+            "name": "Kimi K2.5 Thinking",
+            "reasoning": true,
+            "input": ["text"],
+            "cost": {
+              "input": 0.001,
+              "output": 0.001,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 256000,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "moonshot/kimi-k2.5-instant",
+        "fallbacks": [
+          "moonshot/kimi-k2.5",
+          "moonshot/kimi-k2.5-thinking"
+        ]
+      },
+      "models": {
+        "moonshot/kimi-k2-0905-preview": {
+          "alias": "Kimi K2"
+        },
+        "moonshot/kimi-k2.5-instant": {
+          "alias": "K2.5 Instant"
+        },
+        "moonshot/kimi-k2.5": {
+          "alias": "K2.5 Standard"
+        },
+        "moonshot/kimi-k2.5-thinking": {
+          "alias": "K2.5 Thinking"
+        }
+      },
+      "workspace": "C:\\Users\\noahm\\.openclaw\\workspace",
+      "maxConcurrent": 4,
+      "subagents": {
+        "maxConcurrent": 8
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "children": [
+    {"object":"heading_1","heading_1":{"rich_text":[{"type":"text","text":{"content":"🎯 Fantasy Premier League Strategy"}}]}},
+    {"object":"paragraph","paragraph":{"rich_text":[{"type":"text","text":{"content":"Track your FPL team strategy, transfer plans, and gameweek decisions."}}]}},
+    {"object":"divider","divider":{}},
+    {"object":"heading_2","heading_2":{"rich_text":[{"type":"text","text":{"content":"📊 Team Overview"}}]}},
+    {"object":"bulleted_list_item","bulleted_list_item":{"rich_text":[{"type":"text","text":{"content":"Team managed by Gotchi N"}}]}},
+    {"object":"divider","divider":{}},
+    {"object":"heading_2","heading_2":{"rich_text":[{"type":"text","text":{"content":"🔄 Transfer Plans"}}]}},
+    {"object":"to_do","to_do":{"rich_text":[{"type":"text","text":{"content":"Review weekly fixtures"}}],"checked":false}},
+    {"object":"to_do","to_do":{"rich_text":[{"type":"text","text":{"content":"Monitor player injuries"}}],"checked":false}},
+    {"object":"to_do","to_do":{"rich_text":[{"type":"text","text":{"content":"Plan captain picks"}}],"checked":false}},
+    {"object":"divider","divider":{}},
+    {"object":"heading_2","heading_2":{"rich_text":[{"type":"text","text":{"content":"⚡ Captain Strategy"}}]}},
+    {"object":"callout","callout":{"rich_text":[{"type":"text","text":{"content":"Use AI Captain Advisor for optimal picks!"}}],"icon":{"type":"emoji","emoji":"💡"}}}
+  ]
+}

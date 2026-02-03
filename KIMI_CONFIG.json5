@@ -1,0 +1,89 @@
+{
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "moonshot/kimi-k2.5-instant",
+        "description": "Fast default for quick responses"
+      },
+      "fallbacks": [
+        "moonshot/kimi-k2.5",
+        "moonshot/kimi-k2.5-thinking"
+      ]
+    },
+    "modes": {
+      "instant": {
+        "model": "moonshot/kimi-k2.5-instant",
+        "description": "Fast responses, simple queries",
+        "use_for": [
+          "Quick answers",
+          "File operations",
+          "Status checks",
+          "Simple edits"
+        ]
+      },
+      "thinking": {
+        "model": "moonshot/kimi-k2.5",
+        "description": "Deep reasoning, complex analysis",
+        "use_for": [
+          "Complex coding",
+          "Architecture decisions",
+          "Multi-step problems",
+          "Code reviews"
+        ],
+        "trigger": "/think or complex task detected"
+      },
+      "agent": {
+        "model": "moonshot/kimi-k2.5",
+        "description": "Agent mode needs deep reasoning",
+        "use_for": [
+          "Multi-step tasks",
+          "Planning",
+          "Research",
+          "Debugging"
+        ]
+      },
+      "ultimate": {
+        "model": "moonshot/kimi-k2.5-thinking",
+        "description": "Ultimate fallback for hardest problems",
+        "use_for": [
+          "Mathematical proofs",
+          "Complex algorithms",
+          "Deep analysis",
+          "When other models fail"
+        ],
+        "trigger": "/deep or ultimate mode"
+      }
+    }
+  },
+  "auto_switch_rules": {
+    "to_thinking": [
+      "Code contains 'complex', 'architecture', 'design'",
+      "Task has multiple steps (>5)",
+      "User explicitly says '/think'",
+      "Code review or refactoring request"
+    ],
+    "to_ultimate": [
+      "User says '/deep' or '/ultimate'",
+      "Previous response insufficient",
+      "Mathematical or logical proofs",
+      "Explicit request for thinking mode"
+    ]
+  },
+  "pricing": {
+    "kimi-k2.5-instant": {
+      "input": "$0.0005/1K tokens",
+      "output": "$0.0005/1K tokens",
+      "speed": "Fast"
+    },
+    "kimi-k2.5": {
+      "input": "$0.0008/1K tokens",
+      "output": "$0.0008/1K tokens",
+      "speed": "Standard"
+    },
+    "kimi-k2.5-thinking": {
+      "input": "$0.001/1K tokens",
+      "output": "$0.001/1K tokens",
+      "speed": "Slower but deeper"
+    }
+  }
+}

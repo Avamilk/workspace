@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "./components/providers/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "FPL Retro",
-  description: "Fantasy Premier League with retro vibes",
+  title: "FPL Command Center",
+  description: "Fantasy Premier League with Matrix aesthetics",
 };
 
 export default function RootLayout({
@@ -16,8 +17,10 @@ export default function RootLayout({
       <head>
         <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet" />
       </head>
-      <body className="bg-[#0a0a0f] text-[#39ff14] font-['VT323'] min-h-screen">
-        {children}
+      <body className="bg-[#050a14] text-white font-sans min-h-screen">
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

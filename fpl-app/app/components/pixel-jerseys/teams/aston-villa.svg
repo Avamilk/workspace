@@ -1,0 +1,17 @@
+<svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+  <!-- Aston Villa Home Kit - Claret/Light Blue -->
+  <!-- Hair -->
+  <rect x="8" y="0" width="16" height="4" fill="#000"/>
+  <!-- Face -->
+  <rect x="8" y="4" width="16" height="10" fill="#8d5524"/>
+  <!-- Neck -->
+  <rect x="12" y="14" width="8" height="4" fill="#8d5524"/>
+  <!-- Shoulders/Sleeves - Light Blue -->
+  <rect x="2" y="18" width="6" height="14" fill="#94bee5"/>
+  <rect x="24" y="18" width="6" height="14" fill="#94bee5"/>
+  <!-- Jersey Body - Claret -->
+  <rect x="8" y="18" width="16" height="18" fill="#7a263a"/>
+  <!-- Collar -->
+  <rect x="10" y="18" width="12" height="4" fill="#94bee5"/>
+  <rect x="12" y="18" width="8" height="4" fill="#7a263a"/>
+</svg>

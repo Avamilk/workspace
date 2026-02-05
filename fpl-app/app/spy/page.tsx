@@ -1,321 +1,198 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, Eye, Users, Trophy, TrendingUp, AlertTriangle, Target } from 'lucide-react'
 import { AppShell } from '../components/layout/AppShell'
-import { LEDText } from '../components/ui/LEDText'
-import { Eye, Lock, TrendingUp, DollarSign, Brain, Shield, X } from 'lucide-react'
+import { SplitFlapDisplay } from '../components/ui/SplitFlap'
+import { useTeamStore } from '../../lib/store/teamStore'
 
-const spyOptions = [
-  { 
-    id: 'basic', 
-    name: 'BASIC SCOUT', 
-    desc: 'Current team & formation', 
-    cost: 0, 
-    icon: Eye, 
-    color: 'text-led-green', 
-    border: 'border-led-green' 
-  },
-  { 
-    id: 'deep', 
-    name: 'DEEP COVER', 
-    desc: 'Transfer history & trends', 
-    cost: 1, 
-    icon: Lock, 
-    color: 'text-led-amber', 
-    border: 'border-led-amber' 
-  },
-  { 
-    id: 'threat', 
-    name: 'THREAT ANALYSIS', 
-    desc: 'Differentials vs your team', 
-    cost: 1, 
-    icon: Shield, 
-    color: 'text-led-amber', 
-    border: 'border-led-amber' 
-  },
-  { 
-    id: 'financial', 
-    name: 'FINANCIAL INTEL', 
-    desc: 'Team value, bank, P&L', 
-    cost: 2, 
-    icon: DollarSign, 
-    color: 'text-led-amber', 
-    border: 'border-led-amber' 
-  },
-  { 
-    id: 'predictive', 
-    name: 'PREDICTIVE MODEL', 
-    desc: 'AI predicts their next move', 
-    cost: 3, 
-    icon: Brain, 
-    color: 'text-led-red', 
-    border: 'border-led-red' 
+export default function SpyPage() {
+  const router = useRouter()
+  const { teamData } = useTeamStore()
+  const [selectedRival, setSelectedRival] = useState<number | null>(null)
+  
+  if (!teamData) {
+    return (
+      <AppShell>
+        <div className="flex items-center justify-center h-64">
+          <p className="text-white/50">Loading intelligence data...</p>
+        </div>
+      </AppShell>
+    )
   }
-]
-
-const mockTargets = [
-  { id: '1', name: 'FPL Legend', rank: 456, points: 1523, teamValue: 104.5 },
-  { id: '2', name: 'Top 10k Hopeful', rank: 8942, points: 1456, teamValue: 102.1 },
-  { id: '3', name: 'Differential King', rank: 2341, points: 1489, teamValue: 103.8 },
-]
-
-// Mock intel data
-const mockIntel = {
-  basic: {
-    target: 'FPL Legend',
-    formation: '3-4-3',
-    players: [
-      { name: 'Haaland', team: 'MCI', pos: 'FWD', pts: 13 },
-      { name: 'Salah', team: 'LIV', pos: 'FWD', pts: 10 },
-      { name: 'Saka', team: 'ARS', pos: 'FWD', pts: 12 },
-      { name: 'De Bruyne', team: 'MCI', pos: 'MID', pts: 8 },
-      { name: 'Palmer', team: 'CHE', pos: 'MID', pts: 9 },
-      { name: 'Rice', team: 'ARS', pos: 'MID', pts: 6 },
-      { name: 'Son', team: 'TOT', pos: 'MID', pts: 7 },
-      { name: 'Trippier', team: 'NEW', pos: 'DEF', pts: 8 },
-      { name: 'Van Dijk', team: 'LIV', pos: 'DEF', pts: 7 },
-      { name: 'Gabriel', team: 'ARS', pos: 'DEF', pts: 6 },
-      { name: 'Raya', team: 'ARS', pos: 'GK', pts: 6 },
-    ],
-    captain: 'Haaland',
-    vice: 'Salah'
-  },
-  deep: {
-    transfersIn: ['Palmer (GW22)', 'Watkins (GW20)', 'Trippier (GW18)'],
-    transfersOut: ['Foden (GW22)', 'Darwin (GW20)', 'TAA (GW18)'],
-    trend: 'Aggressive early transfers, chasing form'
-  },
-  threat: {
-    differentials: ['Palmer (9% owned)', 'Watkins (12% owned)', 'Trippier (8% owned)'],
-    yourPlayers: ['You have Salah, Haaland - same as target'],
-    riskLevel: 'MEDIUM',
-    advice: 'Target owns 3 differentials you dont have. Consider Palmer.'
-  },
-  financial: {
-    teamValue: 104.5,
-    bank: 0.8,
-    profit: 12.3,
-    topAssets: ['Haaland £14.0m', 'Salah £13.0m', 'Saka £10.5m']
-  },
-  predictive: {
-    nextTransfer: 'Likely to sell Watkins for Solanke',
-    confidence: 75,
-    reasoning: 'Watkins blank fixture, Solanke good form, target aggressive'
-  }
-}
-
-export default function SpyHub() {
-  const [selectedTarget, setSelectedTarget] = useState<string | null>(null)
-  const [activeIntel, setActiveIntel] = useState<string | null>(null)
-  const [credits, setCredits] = useState(5)
-  const [intelData, setIntelData] = useState<any>(null)
-
-  const runIntel = (type: string, cost: number) => {
-    if (!selectedTarget) {
-      alert('Select a target first!')
-      return
-    }
-    if (cost > credits) {
-      alert('Not enough spy credits!')
-      return
-    }
-    setCredits(c => c - cost)
-    setActiveIntel(type)
-    setIntelData(mockIntel[type as keyof typeof mockIntel])
-  }
-
-  const closeIntel = () => {
-    setActiveIntel(null)
-    setIntelData(null)
-  }
-
+  
+  const mockRivals = [
+    { 
+      id: 1, 
+      name: 'FPL Legend', 
+      rank: 5234, 
+      totalPoints: 1456,
+      gwPoints: 67,
+      captain: 'Haaland',
+      transfers: 2,
+      trend: 'up'
+    },
+    { 
+      id: 2, 
+      name: 'Pep Guardiola', 
+      rank: 8921, 
+      totalPoints: 1389,
+      gwPoints: 45,
+      captain: 'Salah',
+      transfers: 1,
+      trend: 'down'
+    },
+    { 
+      id: 3, 
+      name: 'Klopps Army', 
+      rank: 12456, 
+      totalPoints: 1321,
+      gwPoints: 72,
+      captain: 'Saka',
+      transfers: 3,
+      trend: 'up'
+    },
+  ]
+  
+  const yourRank = teamData.entry?.overallRank || 125432
+  
   return (
     <AppShell>
-      <div className="mb-6">
-        <LEDText size="xl">SPY HUB</LEDText>
-        <LEDText color="amber" size="md">Gather intelligence on rival managers</LEDText>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Targets */}
-        <div className="lg:col-span-1 space-y-4">
-          <div className="panel" style={{ borderColor: 'rgba(255, 176, 0, 0.3)' }}>
-            <LEDText color="amber" size="md">TARGETS</LEDText>
-            <div className="mt-4 space-y-3">
-              {mockTargets.map(target => (
-                <div 
-                  key={target.id} 
-                  onClick={() => setSelectedTarget(target.id)}
-                  className={`p-3 bg-panel-dark/50 rounded border cursor-pointer transition-colors ${
-                    selectedTarget === target.id ? 'border-led-amber bg-led-amber/10' : 'border-led-dim/20 hover:border-led-amber/50'
-                  }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="font-led text-led-green">{target.name}</span>
-                    <span className="font-led text-led-amber text-sm">#{target.rank}</span>
-                  </div>
-                  <div className="flex justify-between text-xs font-led text-led-dim mt-1">
-                    <span>{target.points} PTS</span>
-                    <span>£{target.teamValue}m</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="panel" style={{ borderColor: 'rgba(57, 255, 20, 0.3)' }}>
-            <LEDText color="green" size="sm">YOUR SPY CREDITS</LEDText>
-            <div className="mt-2 flex items-center justify-between">
-              <span className="led-text text-3xl text-led-green">{credits}</span>
-              <span className="font-led text-led-dim text-sm">FREE TIER</span>
-            </div>
-            <p className="text-led-dim text-xs font-led mt-2">Resets Monday 00:00</p>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <button 
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-white/60 hover:text-[#39ff14] transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>BACK TO TERMINAL</span>
+          </button>
+          
+          <div className="flex items-center gap-2">
+            <Eye className="w-5 h-5 text-[#39ff14]" />
+            <span className="text-[#39ff14] font-bold">LIVE INTEL</span>
           </div>
         </div>
-
-        {/* Intel Options */}
-        <div className="lg:col-span-2">
-          <div className="panel h-full relative" style={{ borderColor: 'rgba(255, 176, 0, 0.3)' }}>
-            {!activeIntel ? (
-              <>
-                <LEDText color="amber" size="md">INTEL OPTIONS</LEDText>
-                <p className="text-led-dim font-led text-sm mt-2 mb-4">
-                  {selectedTarget ? `Target selected: ${mockTargets.find(t => t.id === selectedTarget)?.name}` : 'Select target manager to unlock intel'}
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {spyOptions.map(option => (
-                    <button 
-                      key={option.id} 
-                      onClick={() => selectedTarget && runIntel(option.id, option.cost)}
-                      disabled={!selectedTarget}
-                      className={`p-4 bg-panel-dark/50 rounded-lg border-2 text-left transition-all ${
-                        selectedTarget ? `${option.border} hover:bg-panel-dark cursor-pointer` : 'border-led-dim/20 opacity-50 cursor-not-allowed'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <option.icon className={`w-6 h-6 ${option.color} mt-1`} />
-                        <div className="flex-1">
-                          <div className="flex justify-between items-center">
-                            <span className={`font-led ${option.color} text-lg`}>{option.name}</span>
-                            <span className={`font-led ${option.cost === 0 ? 'text-led-green' : 'text-led-amber'} text-sm`}>
-                              {option.cost === 0 ? 'FREE' : `${option.cost} CREDIT`}
-                            </span>
-                          </div>
-                          <p className="text-led-dim font-led text-sm mt-1">{option.desc}</p>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
+        
+        {/* Title */}
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-[#39ff14] drop-shadow-[0_0_10px_rgba(57,255,20,0.5)]">
+            RIVAL INTELLIGENCE
+          </h1>
+          <p className="text-white/50 mt-2">Track your competition • Analyze their moves</p>
+        </div>
+        
+        {/* Your Position */}
+        <div className="bg-[#0f0f0f] rounded-xl border border-[#39ff14]/30 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs font-bold text-white/40 uppercase mb-1">Your Position</div>
+              <SplitFlapDisplay value={`#${yourRank.toLocaleString()}`} className="text-4xl" />
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-white/40 uppercase mb-1">League Rank</div>
+              <div className="text-2xl font-bold text-[#39ff14]">#4</div>
+              <div className="text-xs text-white/50">of 12 managers</div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Threat Analysis */}
+        <div className="bg-[#ff3333]/10 border border-[#ff3333]/30 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-[#ff3333] flex-shrink-0 mt-0.5" />
+            <div>
+              <div className="font-bold text-[#ff3333]">THREAT DETECTED</div>
+              <p className="text-white/70 text-sm mt-1">
+                <strong>Klopps Army</strong> is on a hot streak (72 pts this GW). 
+                They captain differential Saka while most captained Salah. 
+                If Saka outscores Salah, they could jump 3 spots ahead of you.
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Rivals List */}
+        <section className="bg-[#0f0f0f] rounded-xl border border-[#222] overflow-hidden">
+          <div className="px-4 py-3 bg-[#111] border-b border-[#222]">
+            <div className="flex items-center gap-2">
+              <Target className="w-4 h-4 text-[#39ff14]" />
+              <h3 className="text-xs font-bold text-white/40 uppercase tracking-wider">Tracked Rivals</h3>
+            </div>
+          </div>
+          
+          <div className="divide-y divide-[#222]">
+            {mockRivals.map((rival) => (
+              <div 
+                key={rival.id}
+                className="p-4 hover:bg-white/5 transition-colors cursor-pointer"
+                onClick={() => setSelectedRival(selectedRival === rival.id ? null : rival.id)}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                    rival.trend === 'up' ? 'bg-[#39ff14] text-black' : 'bg-[#ff3333] text-white'
+                  }`}>
+                    {rival.trend === 'up' ? '↑' : '↓'}
+                  </div>
+                  
+                  <div className="flex-1">
+                    <div className="font-bold text-white">{rival.name}</div>
+                    <div className="text-sm text-white/50">Rank: #{rival.rank.toLocaleString()}</div>
+                  </div>
+                  
+                  <div className="text-right">
+                    <div className="font-bold text-[#39ff14]">{rival.gwPoints} pts</div>
+                    <div className="text-xs text-white/40">GW 24</div>
+                  </div>
                 </div>
-                {!selectedTarget && (
-                  <div className="mt-6 p-4 bg-panel-dark/30 rounded border border-led-dim/20 text-center">
-                    <p className="text-led-dim font-led">Select a target to begin intelligence gathering</p>
-                  </div>
-                )}
-              </>
-            ) : (
-              /* Intel Results */
-              <div className="h-full">
-                <div className="flex justify-between items-center mb-4">
-                  <LEDText color="amber" size="md">
-                    {spyOptions.find(o => o.id === activeIntel)?.name.toUpperCase()} RESULT
-                  </LEDText>
-                  <button 
-                    onClick={closeIntel}
-                    className="text-led-dim hover:text-led-red"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
-
-                {/* Render different intel types */}
-                {activeIntel === 'basic' && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm font-led">
-                      <div className="text-led-dim">Formation: <span className="text-led-green">{intelData.formation}</span></div>
-                      <div className="text-led-dim">Captain: <span className="text-led-amber">{intelData.captain}</span></div>
-                    </div>
-                    <div className="bg-panel-dark/50 rounded p-4 max-h-64 overflow-y-auto">
-                      {intelData.players.map((p: any, i: number) => (
-                        <div key={i} className="flex justify-between py-1 border-b border-led-dim/10 last:border-0">
-                          <span className="text-led-green">{p.name} ({p.team})</span>
-                          <span className="text-led-amber">{p.pts} PTS</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {activeIntel === 'deep' && (
-                  <div className="space-y-4">
+                
+                {selectedRival === rival.id && (
+                  <div className="mt-4 pt-4 border-t border-[#222] grid grid-cols-3 gap-4">
                     <div>
-                      <p className="text-led-amber font-led mb-2">Recent Transfers In:</p>
-                      {intelData.transfersIn.map((t: string, i: number) => (
-                        <p key={i} className="text-led-green font-led text-sm">+ {t}</p>
-                      ))}
+                      <div className="text-xs text-white/40 uppercase">Captain</div>
+                      <div className="font-bold text-white">{rival.captain}</div>
                     </div>
                     <div>
-                      <p className="text-led-red font-led mb-2">Recent Transfers Out:</p>
-                      {intelData.transfersOut.map((t: string, i: number) => (
-                        <p key={i} className="text-led-dim font-led text-sm">- {t}</p>
-                      ))}
-                    </div>
-                    <p className="text-led-amber font-led mt-4">Trend: {intelData.trend}</p>
-                  </div>
-                )}
-
-                {activeIntel === 'threat' && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-led-dim font-led">Risk Level:</span>
-                      <span className={`font-led ${
-                        intelData.riskLevel === 'HIGH' ? 'text-led-red' : 'text-led-amber'
-                      }`}>{intelData.riskLevel}</span>
+                      <div className="text-xs text-white/40 uppercase">Transfers</div>
+                      <div className="font-bold text-white">{rival.transfers}</div>
                     </div>
                     <div>
-                      <p className="text-led-amber font-led mb-2">Their Differentials:</p>
-                      {intelData.differentials.map((d: string, i: number) => (
-                        <p key={i} className="text-led-green font-led text-sm">• {d}</p>
-                      ))}
+                      <div className="text-xs text-white/40 uppercase">Total</div>
+                      <div className="font-bold text-white">{rival.totalPoints}</div>
                     </div>
-                    <p className="text-led-amber font-led mt-4">{intelData.advice}</p>
-                  </div>
-                )}
-
-                {activeIntel === 'financial' && (
-                  <div className="space-y-4 font-led">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="text-led-dim">Team Value: <span className="text-led-green">£{intelData.teamValue}m</span></div>
-                      <div className="text-led-dim">Bank: <span className="text-led-amber">£{intelData.bank}m</span></div>
+                    
+                    <div className="col-span-3 mt-2">
+                      <button className="w-full py-2 bg-[#39ff14]/10 border border-[#39ff14]/30 text-[#39ff14] rounded-lg text-sm font-bold hover:bg-[#39ff14]/20 transition-colors">
+                        VIEW FULL TEAM
+                      </button>
                     </div>
-                    <div className="text-led-dim">Season Profit: <span className="text-led-green">+£{intelData.profit}m</span></div>
-                    <div>
-                      <p className="text-led-amber mb-2">Top Assets:</p>
-                      {intelData.topAssets.map((a: string, i: number) => (
-                        <p key={i} className="text-led-green text-sm">• {a}</p>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {activeIntel === 'predictive' && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-led-dim font-led">Confidence:</span>
-                      <span className="text-led-green font-led">{intelData.confidence}%</span>
-                    </div>
-                    <div className="bg-panel-dark/50 rounded p-4 border border-led-amber/30">
-                      <p className="text-led-amber font-led text-lg mb-2">Predicted Next Transfer:</p>
-                      <p className="text-led-green font-led">{intelData.nextTransfer}</p>
-                    </div>
-                    <p className="text-led-dim font-led text-sm">{intelData.reasoning}</p>
                   </div>
                 )}
               </div>
-            )}
+            ))}
           </div>
+        </section>
+        
+        {/* League Insights */}
+        <div className="grid grid-cols-3 gap-4">
+          <InsightBox icon={Trophy} label="Top Captain" value="Haaland" subtext="65% captained" />
+          <InsightBox icon={TrendingUp} label="Most Transferred In" value="Palmer" subtext="+2.3m owners" />
+          <InsightBox icon={Users} label="Active Managers" value="10.2M" subtext="94% played chip" />
         </div>
       </div>
     </AppShell>
+  )
+}
+
+function InsightBox({ icon: Icon, label, value, subtext }: { icon: any, label: string, value: string, subtext: string }) {
+  return (
+    <div className="bg-[#0f0f0f] rounded-xl border border-[#222] p-4 text-center">
+      <Icon className="w-5 h-5 text-[#39ff14] mx-auto mb-2" />
+      <div className="text-xs text-white/40 uppercase mb-1">{label}</div>
+      <div className="font-bold text-white">{value}</div>
+      <div className="text-xs text-white/50">{subtext}</div>
+    </div>
   )
 }

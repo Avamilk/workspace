@@ -137,7 +137,7 @@ export default function WatchlistPage() {
           <p className="text-led-dim font-led text-sm">MEDIUM</p>
         </div>
         <div className="panel text-center" style={{ borderColor: 'rgba(74, 74, 90, 0.3)' }}>
-          <LEDText color="dim" size="xl">{items.filter(i => i.priority === 'LOW').length}</LEDText>
+          <LEDText color="green" size="xl">{items.filter(i => i.priority === 'LOW').length}</LEDText>
           <p className="text-led-dim font-led text-sm">LOW</p>
         </div>
       </div>

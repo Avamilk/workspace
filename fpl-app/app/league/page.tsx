@@ -1,350 +1,254 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, Trophy, Users, TrendingUp, Medal, Target, Crown, Award } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { AppShell } from '../components/layout/AppShell'
-import { LEDText } from '../components/ui/LEDText'
-import { Trophy, Users, TrendingUp, Star, Shield, Zap, Target } from 'lucide-react'
-
-// Mock league data
-const leagueData = {
-  name: 'The Nightstalkers',
-  gameweek: 24,
-  standings: [
-    {
-      rank: 1,
-      lastRank: 2,
-      team: 'FPL Legend',
-      manager: 'Alex',
-      gwPts: 78,
-      total: 1567,
-      value: 104.5,
-      bank: 0.8,
-      captain: 'Haaland',
-      chips: ['WC', 'TC']
-    },
-    {
-      rank: 2,
-      lastRank: 1,
-      team: 'Top 10k Hopeful',
-      manager: 'Sam',
-      gwPts: 65,
-      total: 1545,
-      value: 102.1,
-      bank: 2.3,
-      captain: 'Salah',
-      chips: ['BB']
-    },
-    {
-      rank: 3,
-      lastRank: 4,
-      team: 'Differential King',
-      manager: 'Jordan',
-      gwPts: 82,
-      total: 1523,
-      value: 103.8,
-      bank: 1.5,
-      captain: 'Palmer',
-      chips: ['FH']
-    },
-    {
-      rank: 4,
-      lastRank: 3,
-      team: 'Your Team',
-      manager: 'You',
-      gwPts: 71,
-      total: 1512,
-      value: 104.2,
-      bank: 2.1,
-      captain: 'Saka',
-      chips: []
-    },
-    {
-      rank: 5,
-      lastRank: 5,
-      team: 'Casual FC',
-      manager: 'Mike',
-      gwPts: 58,
-      total: 1489,
-      value: 101.2,
-      bank: 3.5,
-      captain: 'Haaland',
-      chips: ['WC', 'BB', 'TC', 'FH']
-    },
-  ]
-}
-
-// Mock GW story data
-const gwStory = {
-  topCaptain: { player: 'Haaland', owners: 3, points: 26 },
-  differential: { player: 'Palmer', owners: 1, points: 19 },
-  biggestRiser: { team: 'Differential King', gwPts: 82, rankChange: '+1' },
-  biggestFaller: { team: 'Top 10k Hopeful', gwPts: 65, rankChange: '-1' },
-  chipUsage: [
-    { manager: 'FPL Legend', chip: 'Triple Captain', player: 'Haaland', points: 52 }
-  ],
-  benchHappiness: [
-    { manager: 'Casual FC', player: 'Watkins', points: 13, onBench: true }
-  ]
-}
-
-// Mock team ownership data
-const teamOwnership: Record<string, { manager: string; players: string[]; count: number }[]> = {
-  ARS: [
-    { manager: 'FPL Legend', players: ['Saka', 'Havertz', 'Raya'], count: 3 },
-    { manager: 'You', players: ['Saka', 'Gabriel', 'Raya'], count: 3 },
-    { manager: 'Top 10k Hopeful', players: ['Saka'], count: 1 },
-    { manager: 'Differential King', players: ['Gabriel'], count: 1 },
-  ],
-  MCI: [
-    { manager: 'FPL Legend', players: ['Haaland', 'Foden'], count: 2 },
-    { manager: 'You', players: ['Haaland', 'De Bruyne'], count: 2 },
-    { manager: 'Top 10k Hopeful', players: ['Haaland', 'Foden', 'Ake'], count: 3 },
-    { manager: 'Casual FC', players: ['Haaland'], count: 1 },
-  ]
-}
-
-type View = 'table' | 'story' | 'rivals'
+import { GlassCard, NeonText, NeonHeading, NavButton } from '../components/glass'
+import { useTeamStore } from '../../lib/store/teamStore'
 
 export default function LeaguePage() {
-  const [view, setView] = useState<View>('table')
-  const [selectedTeam, setSelectedTeam] = useState<string | null>(null)
-
-  const getRankChange = (current: number, last: number) => {
-    const diff = last - current
-    if (diff > 0) return { arrow: '▲', color: 'text-led-green', text: `+${diff}` }
-    if (diff < 0) return { arrow: '▼', color: 'text-led-red', text: `${diff}` }
-    return { arrow: '-', color: 'text-led-dim', text: '' }
+  const router = useRouter()
+  const { teamData } = useTeamStore()
+  const [activeTab, setActiveTab] = useState<'classic' | 'h2h' | 'cup'>('classic')
+  
+  if (!teamData) {
+    return (
+      <AppShell>
+        <div className="flex items-center justify-center h-64">
+          <NeonText color="white">Loading leagues...</NeonText>
+        </div>
+      </AppShell>
+    )
   }
-
-  const getChipIcon = (chip: string) => {
-    switch(chip) {
-      case 'WC': return <span className="text-led-amber text-xs font-led" title="Wild Card">WC</span>
-      case 'TC': return <Zap className="w-3 h-3 text-led-amber" title="Triple Captain" />
-      case 'BB': return <Shield className="w-3 h-3 text-led-amber" title="Bench Boost" />
-      case 'FH': return <Target className="w-3 h-3 text-led-amber" title="Free Hit" />
-      default: return null
-    }
-  }
-
+  
+  const mockLeagues = [
+    { id: 1, name: 'Work League', rank: 4, total: 12, points: 1245, trend: 'up', gap: -45 },
+    { id: 2, name: 'Family FPL', rank: 2, total: 8, points: 1245, trend: 'same', gap: -12 },
+    { id: 3, name: 'Global', rank: 125432, total: 10000000, points: 1245, trend: 'down', gap: null },
+  ]
+  
+  const mockH2H = [
+    { gameweek: 24, opponent: 'FPL Legend', result: 'W', score: '45-32', points: 3 },
+    { gameweek: 23, opponent: 'Pep Guardiola', result: 'L', score: '28-51', points: 0 },
+    { gameweek: 22, opponent: 'Klopps Army', result: 'W', score: '67-45', points: 3 },
+  ]
+  
   return (
     <AppShell>
-      <div className="mb-6">
-        <LEDText size="xl">{leagueData.name.toUpperCase()}</LEDText>
-        <LEDText color="amber" size="md">Gameweek {leagueData.gameweek}</LEDText>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex gap-2 mb-6">
-        <button 
-          onClick={() => setView('table')} 
-          className={`led-button text-sm py-2 px-4 ${view === 'table' ? 'bg-led-green text-panel-dark' : ''}`}
-        >
-          <Trophy className="w-4 h-4 inline mr-2" /> TABLE
-        </button>
-        <button 
-          onClick={() => setView('story')} 
-          className={`led-button text-sm py-2 px-4 ${view === 'story' ? 'bg-led-green text-panel-dark' : ''}`}
-        >
-          <TrendingUp className="w-4 h-4 inline mr-2" /> GW STORY
-        </button>
-        <button 
-          onClick={() => setView('rivals')} 
-          className={`led-button text-sm py-2 px-4 ${view === 'rivals' ? 'bg-led-green text-panel-dark' : ''}`}
-        >
-          <Users className="w-4 h-4 inline mr-2" /> RIVALS
-        </button>
-      </div>
-
-      {/* TABLE VIEW */}
-      {view === 'table' && (
-        <div className="panel" style={{ borderColor: 'rgba(255, 176, 0, 0.3)' }}>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-led-dim/20">
-                  <th className="text-left py-3 px-2 font-led text-led-dim text-sm">RANK</th>
-                  <th className="text-left py-3 px-2 font-led text-led-dim text-sm">TEAM</th>
-                  <th className="text-center py-3 px-2 font-led text-led-dim text-sm">GW</th>
-                  <th className="text-center py-3 px-2 font-led text-led-dim text-sm">TOTAL</th>
-                  <th className="text-center py-3 px-2 font-led text-led-dim text-sm">VALUE</th>
-                  <th className="text-center py-3 px-2 font-led text-led-dim text-sm">CAPTAIN</th>
-                  <th className="text-center py-3 px-2 font-led text-led-dim text-sm">CHIPS</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leagueData.standings.map((team) => {
-                  const change = getRankChange(team.rank, team.lastRank)
-                  const isYou = team.manager === 'You'
-                  return (
-                    <tr 
-                      key={team.rank} 
-                      className={`border-b border-led-dim/10 hover:bg-panel-dark/30 ${isYou ? 'bg-led-green/5' : ''}`}
-                    >
-                      <td className="py-3 px-2">
-                        <div className="flex items-center gap-2">
-                          <span className="font-led text-led-green text-lg">{team.rank}</span>
-                          <span className={`text-xs ${change.color}`}>{change.arrow} {change.text}</span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-2">
-                        <div>
-                          <p className={`font-led ${isYou ? 'text-led-amber' : 'text-led-green'}`}>{team.team}</p>
-                          <p className="text-led-dim text-xs font-led">{team.manager}</p>
-                        </div>
-                      </td>
-                      <td className="py-3 px-2 text-center">
-                        <span className="font-led text-led-amber">{team.gwPts}</span>
-                      </td>
-                      <td className="py-3 px-2 text-center">
-                        <span className="font-led text-led-green">{team.total}</span>
-                      </td>
-                      <td className="py-3 px-2 text-center">
-                        <span className="font-led text-led-dim text-sm">£{team.value}m</span>
-                      </td>
-                      <td className="py-3 px-2 text-center">
-                        <span className="font-led text-led-amber text-sm">{team.captain}</span>
-                      </td>
-                      <td className="py-3 px-2 text-center">
-                        <div className="flex justify-center gap-1">
-                          {team.chips.map((chip, i) => (
-                            <span key={i}>{getChipIcon(chip)}</span>
-                          ))}
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <NavButton 
+            icon={ArrowLeft}
+            onClick={() => router.back()}
+            variant="ghost"
+          >
+            BACK
+          </NavButton>
         </div>
-      )}
-
-      {/* GW STORY VIEW */}
-      {view === 'story' && (
-        <div className="space-y-4">
-          {/* Top Captain */}
-          <div className="panel" style={{ borderColor: 'rgba(57, 255, 20, 0.3)' }}>
-            <LEDText color="green" size="md">TOP CAPTAIN</LEDText>
-            <div className="mt-4 flex items-center justify-between">
-              <div>
-                <p className="led-text text-2xl text-led-green">{gwStory.topCaptain.player}</p>
-                <p className="text-led-amber font-led">{gwStory.topCaptain.points} points</p>
-              </div>
-              <div className="text-right">
-                <p className="text-led-dim font-led text-sm">Owned by</p>
-                <p className="led-text text-xl text-led-amber">{gwStory.topCaptain.owners} managers</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Differential */}
-          <div className="panel" style={{ borderColor: 'rgba(255, 176, 0, 0.3)' }}>
-            <LEDText color="amber" size="md">DIFFERENTIAL OF THE WEEK</LEDText>
-            <div className="mt-4 flex items-center justify-between">
-              <div>
-                <p className="led-text text-2xl text-led-amber">{gwStory.differential.player}</p>
-                <p className="text-led-green font-led">{gwStory.differential.points} points</p>
-              </div>
-              <div className="text-right">
-                <p className="text-led-dim font-led text-sm">Only owned by</p>
-                <p className="led-text text-xl text-led-red">{gwStory.differential.owners} manager</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Biggest Moves */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="panel" style={{ borderColor: 'rgba(57, 255, 20, 0.3)' }}>
-              <LEDText color="green" size="sm">BIGGEST RISER</LEDText>
-              <p className="font-led text-led-green mt-2">{gwStory.biggestRiser.team}</p>
-              <p className="text-led-amber font-led">{gwStory.biggestRiser.gwPts} pts</p>
-              <p className="text-led-green font-led text-sm">{gwStory.biggestRiser.rankChange}</p>
-            </div>
-            <div className="panel" style={{ borderColor: 'rgba(255, 51, 51, 0.3)' }}>
-              <LEDText color="red" size="sm">BIGGEST FALLER</LEDText>
-              <p className="font-led text-led-green mt-2">{gwStory.biggestFaller.team}</p>
-              <p className="text-led-amber font-led">{gwStory.biggestFaller.gwPts} pts</p>
-              <p className="text-led-red font-led text-sm">{gwStory.biggestFaller.rankChange}</p>
-            </div>
-          </div>
-
-          {/* Chip Usage */}
-          {gwStory.chipUsage.length > 0 && (
-            <div className="panel" style={{ borderColor: 'rgba(255, 176, 0, 0.3)' }}>
-              <LEDText color="amber" size="md">CHIP USAGE</LEDText>
-              {gwStory.chipUsage.map((chip, i) => (
-                <div key={i} className="mt-2 p-2 bg-panel-dark/50 rounded">
-                  <p className="font-led text-led-green">{chip.manager} used <span className="text-led-amber">{chip.chip}</span></p>
-                  <p className="text-led-dim font-led text-sm">on {chip.player} = {chip.points} points</p>
-                </div>
-              ))}
-            </div>
-          )}
+        
+        {/* Title */}
+        <div className="text-center">
+          <NeonHeading as="h1" size="3xl" color="green" glow>
+            LEAGUES & CUPS
+          </NeonHeading>
+          <p className="text-white/50 mt-2 font-mono text-sm">
+            Track your rankings across all competitions
+          </p>
         </div>
-      )}
-
-      {/* RIVALS VIEW */}
-      {view === 'rivals' && (
-        <div className="space-y-4">
-          {!selectedTeam ? (
-            <>
-              <p className="text-led-dim font-led mb-4">Select a team to see ownership breakdown</p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {Object.keys(teamOwnership).map(team => (
-                  <button 
-                    key={team} 
-                    onClick={() => setSelectedTeam(team)}
-                    className="panel text-center py-8 transition-colors"
-                    style={{ borderColor: 'rgba(255, 176, 0, 0.3)' }}
-                  >
-                    <LEDText size="xl">{team}</LEDText>
-                    <p className="text-led-amber font-led mt-2">
-                      {teamOwnership[team].reduce((acc, m) => acc + m.count, 0)} players owned
-                    </p>
-                    <p className="text-led-dim font-led text-sm mt-1">
-                      by {teamOwnership[team].length} managers
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </>
-          ) : (
-            <div>
-              <button 
-                onClick={() => setSelectedTeam(null)} 
-                className="led-button-amber text-sm mb-4"
+        
+        {/* Total Points Card */}
+        <GlassCard variant="default" className="text-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-[#00ff88]/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
+          
+          <div className="relative z-10">
+            <NeonText size="xs" color="green" glow className="uppercase">Total Points</NeonText>
+            <NeonHeading as="h2" size="3xl" color="green" glow className="my-2">
+              1,245
+            </NeonHeading>
+            <div className="flex items-center justify-center gap-2">
+              <TrendingUp className="w-4 h-4 text-[#00ff88]" />
+              <span className="text-sm text-[#00ff88] font-mono">+45 from last GW</span>
+            </div>
+          </div>
+        </GlassCard>
+        
+        {/* Tabs */}
+        <div className="flex gap-2">
+          {[
+            { id: 'classic', label: 'Classic', icon: Trophy },
+            { id: 'h2h', label: 'Head to Head', icon: Target },
+            { id: 'cup', label: 'Cup', icon: Medal },
+          ].map((tab) => (
+            <NavButton
+              key={tab.id}
+              icon={tab.icon}
+              onClick={() => setActiveTab(tab.id as any)}
+              variant={activeTab === tab.id ? 'active' : 'default'}
+              color="green"
+              fullWidth
+              size="sm"
+            >
+              {tab.label}
+            </NavButton>
+          ))}
+        </div>
+        
+        {/* Classic Leagues */}
+        {activeTab === 'classic' && (
+          <div className="space-y-3">
+            {mockLeagues.map((league, index) => (
+              <motion.div
+                key={league.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
               >
-                ← BACK TO TEAMS
-              </button>
-              <div className="panel" style={{ borderColor: 'rgba(255, 176, 0, 0.3)' }}>
-                <LEDText color="amber" size="xl">{selectedTeam} OWNERSHIP</LEDText>
-                <div className="mt-6 space-y-4">
-                  {teamOwnership[selectedTeam].map((manager, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-panel-dark/50 rounded">
-                      <div>
-                        <p className="font-led text-led-green">{manager.manager}</p>
-                        <p className="text-led-dim font-led text-sm">
-                          {manager.players.join(', ')}
-                        </p>
+                <GlassCard 
+                  className={`p-4 ${index === 0 ? 'border-l-[#ffb000]' : index === 1 ? 'border-l-[#c0c0c0]' : index === 2 ? 'border-l-[#cd7f32]' : ''}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {/* Rank badge */}
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold font-mono ${
+                        league.rank === 1 ? 'bg-[#ffb000]/20 text-[#ffb000] border border-[#ffb000]/30' :
+                        league.rank === 2 ? 'bg-[#c0c0c0]/20 text-[#c0c0c0] border border-[#c0c0c0]/30' :
+                        league.rank === 3 ? 'bg-[#cd7f32]/20 text-[#cd7f32] border border-[#cd7f32]/30' :
+                        'bg-white/5 text-white/50'
+                      }`}>
+                        {league.rank <= 3 && league.total <= 100 ? (
+                          <Crown className={`w-5 h-5 ${
+                            league.rank === 1 ? 'text-[#ffb000]' :
+                            league.rank === 2 ? 'text-[#c0c0c0]' :
+                            'text-[#cd7f32]'
+                          }`} />
+                        ) : (
+                          league.rank
+                        )}
                       </div>
-                      <div className="text-right">
-                        <span className="led-text text-xl text-led-amber">{manager.count}</span>
-                        <p className="text-led-dim font-led text-xs">players</p>
+                      
+                      <div>
+                        <div className="font-bold text-white">{league.name}</div>
+                        <div className="text-sm text-white/50 font-mono">
+                          Rank {league.rank} of {league.total.toLocaleString()}
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-                <div className="mt-6 pt-4" style={{ borderTop: '1px solid rgba(74, 74, 90, 0.2)' }}>
-                  <p className="text-led-dim font-led text-center">
-                    Total: {teamOwnership[selectedTeam].reduce((acc, m) => acc + m.count, 0)} {selectedTeam} players across league
-                  </p>
-                </div>
+                    
+                    <div className="text-right">
+                      <div className="flex items-center gap-2 justify-end">
+                        <div className={`w-2 h-2 rounded-full ${
+                          league.trend === 'up' ? 'bg-[#00ff88] shadow-[0_0_8px_#00ff88]' :
+                          league.trend === 'down' ? 'bg-[#ff0066] shadow-[0_0_8px_#ff0066]' : 'bg-[#ffb000]'
+                        }`} />
+                        <NeonText color={league.rank <= 3 ? 'amber' : 'green'} glow={league.rank <= 3}>
+                          #{league.rank.toLocaleString()}
+                        </NeonText>
+                      </div>
+                      {league.gap !== null && (
+                        <div className={`text-xs font-mono ${league.gap < 0 ? 'text-[#00ff88]' : 'text-[#ff0066]'}`}>
+                          {league.gap < 0 ? '↑' : '↓'} {Math.abs(league.gap)} pts to 1st
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 flex gap-2">
+                    <NavButton variant="default" color="cyan" fullWidth size="sm">
+                      VIEW TABLE
+                    </NavButton>
+                    <NavButton variant="default" color="green" fullWidth size="sm">
+                      RIVALS
+                    </NavButton>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            ))}
+          </div>
+        )}
+        
+        {/* Head to Head */}
+        {activeTab === 'h2h' && (
+          <GlassCard className="p-0 overflow-hidden">
+            <div className="px-4 py-3 border-b border-white/10">
+              <NeonText size="xs" color="cyan">Recent Matches</NeonText>
+            </div>
+            
+            <div className="divide-y divide-white/5">
+              {mockH2H.map((match, idx) => (
+                <motion.div 
+                  key={idx} 
+                  className="p-4 hover:bg-white/5 transition-colors"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs text-white/40 font-mono">GW {match.gameweek}</div>
+                      <div className="font-bold text-white">{match.opponent}</div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <NeonText 
+                        color={match.result === 'W' ? 'green' : 'magenta'} 
+                        glow
+                      >
+                        {match.score}
+                      </NeonText>
+                      <div className={`text-sm font-mono ${
+                        match.result === 'W' ? 'text-[#00ff88]' : 'text-[#ff0066]'
+                      }`}>
+                        {match.result === 'W' ? 'WIN' : 'LOSS'}
+                      </div>
+                    </div>
+                    
+                    <div className="text-right">
+                      <div className="text-xs text-white/40 font-mono">Points</div>
+                      <div className="font-bold text-[#00ff88] font-mono">+{match.points}</div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            
+            <div className="p-4 border-t border-white/10">
+              <div className="flex items-center justify-between">
+                <span className="text-white/60 font-mono">Season Record</span>
+                <span className="font-bold text-white font-mono">14W - 6L - 4D</span>
               </div>
             </div>
-          )}
-        </div>
-      )}
+          </GlassCard>
+        )}
+        
+        {/* Cup */}
+        {activeTab === 'cup' && (
+          <GlassCard className="text-center p-8">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-[#ffb000]/20 flex items-center justify-center border border-[#ffb000]/30">
+              <Medal className="w-10 h-10 text-[#ffb000]" />
+            </div>
+            <NeonHeading as="h3" size="xl" color="amber" glow className="mb-2">
+              FPL Cup
+            </NeonHeading>
+            <p className="text-white/60 mb-4 font-mono">You were eliminated in Round 5</p>
+            <NeonHeading as="h3" size="3xl" color="amber" glow>
+              #4,567
+            </NeonHeading>
+            <p className="text-sm text-white/40 mt-1 font-mono">Final Rank</p>
+            
+            <NavButton
+              variant="default"
+              color="amber"
+              fullWidth
+              className="mt-6"
+            >
+              VIEW CUP HISTORY
+            </NavButton>
+          </GlassCard>
+        )}
+      </div>
     </AppShell>
   )
 }

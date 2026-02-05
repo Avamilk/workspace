@@ -1,0 +1,19 @@
+<svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+  <!-- Luton Town Home Kit - Orange/White -->
+  <!-- Hair -->
+  <rect x="8" y="0" width="16" height="4" fill="#000"/>
+  <!-- Face -->
+  <rect x="8" y="4" width="16" height="10" fill="#8d5524"/>
+  <!-- Neck -->
+  <rect x="12" y="14" width="8" height="4" fill="#8d5524"/>
+  <!-- Shoulders/Sleeves - White with orange trim -->
+  <rect x="2" y="18" width="6" height="14" fill="#fff"/>
+  <rect x="2" y="18" width="2" height="14" fill="#f58025"/>
+  <rect x="24" y="18" width="6" height="14" fill="#fff"/>
+  <rect x="28" y="18" width="2" height="14" fill="#f58025"/>
+  <!-- Jersey Body - Orange -->
+  <rect x="8" y="18" width="16" height="18" fill="#f58025"/>
+  <!-- Collar -->
+  <rect x="10" y="18" width="12" height="4" fill="#fff"/>
+  <rect x="12" y="18" width="8" height="4" fill="#f58025"/>
+</svg>

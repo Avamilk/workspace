@@ -1,0 +1,17 @@
+<svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+  <!-- Bournemouth Home Kit - Red/Black -->
+  <!-- Hair -->
+  <rect x="8" y="0" width="16" height="4" fill="#d4af37"/>
+  <!-- Face -->
+  <rect x="8" y="4" width="16" height="10" fill="#f5cba7"/>
+  <!-- Neck -->
+  <rect x="12" y="14" width="8" height="4" fill="#f5cba7"/>
+  <!-- Shoulders/Sleeves - Black -->
+  <rect x="2" y="18" width="6" height="14" fill="#000"/>
+  <rect x="24" y="18" width="6" height="14" fill="#000"/>
+  <!-- Jersey Body - Red -->
+  <rect x="8" y="18" width="16" height="18" fill="#e62333"/>
+  <!-- Collar -->
+  <rect x="10" y="18" width="12" height="4" fill="#000"/>
+  <rect x="12" y="18" width="8" height="4" fill="#e62333"/>
+</svg>
